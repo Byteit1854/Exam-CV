@@ -1,5 +1,5 @@
 
-Импортируем нужные библиотеки и загружаем нужную нам фотографию
+##Импортируем нужные библиотеки и загружаем нужную нам фотографию
 
 import cv2, numpy as np, itertools, os
 
@@ -8,7 +8,7 @@ img = cv2.imread(src_path)
 if img is None:
     raise RuntimeError("Image not found")
 
-Ищем на холсте наши фотографий для сшивания.
+##Ищем на холсте наши фотографий для сшивания.
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY_INV)
@@ -20,7 +20,7 @@ for c in contours:
     if w>20 and h>50:
         pieces.append(img[y:y+h, x:x+w])
 
-Спомошью SIFT определяем точки покоторым можно будет выровнять изображения
+##Спомошью SIFT определяем точки покоторым можно будет выровнять изображения
 
 try:
     detector = cv2.SIFT_create()
@@ -47,7 +47,7 @@ def good_matches(d1, d2, ratio=0.75):
     return sum(1 for a,b in m if a.distance < ratio*b.distance)
 
 
-С центра сшиваем на основе хороших вариантов для сшивания.
+##С центра сшиваем на основе хороших вариантов для сшивания.
 
 n = len(pieces)
 M = np.zeros((n,n), dtype=int)
@@ -57,7 +57,7 @@ for i,j in itertools.combinations(range(n),2):
     score = min(ab, ba)  
     M[i,j] = M[j,i] = score
 
-Выбираем центр и удаляем случайные совпадения с помощью RANSAC.
+##Выбираем центр и удаляем случайные совпадения с помощью RANSAC.
 
 totals = M.sum(1)
 ref_index = int(np.argmax(totals))
@@ -100,7 +100,7 @@ def warp_blend(base, img, H):
     blended[(mask_c==0)&(mask_w==1)] = warped_img[(mask_c==0)&(mask_w==1)]
     return blended
 
-На основе балла соответсвия сшиваем фотографий вместе и вырезаем панораму.
+##На основе балла соответсвия сшиваем фотографий вместе и вырезаем панораму.
 
 used = {ref_index}
 mosaic = pieces[ref_index]
@@ -137,7 +137,7 @@ if coords is not None:
     mosaic = mosaic[y:y+h, x:x+w]
 
 
-Вывод в виде фотографий.
+##Вывод в виде фотографий.
 
 
 out_path = "c:/Users/dshynggys/Downloads/Exam CV/panorama_central_bidirectional.jpg"
